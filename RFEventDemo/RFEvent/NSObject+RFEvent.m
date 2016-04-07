@@ -18,7 +18,7 @@
 	RFEvent *rfEvent = (RFEvent *)objc_getAssociatedObject(self, kRFEventKey);
 	if (rfEvent == nil)
 	{
-		rfEvent = [[RFEvent alloc] init];
+		rfEvent = [[RFEvent alloc] initWithObserverObject:self];
 		objc_setAssociatedObject(self, kRFEventKey, rfEvent, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 	return rfEvent;

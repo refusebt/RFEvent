@@ -10,6 +10,10 @@
 
 #pragma mark - RFEvent
 
+@interface RFEvent ()
+
+@end
+
 @implementation RFEvent
 
 - (id)initWithObserverObject:(id)observerObject
@@ -146,14 +150,14 @@
 {
 	self.kvoMap[key] = ke;
 	
-	[ke.watchObject addObserver:self forKeyPath:ke.event options:NSKeyValueObservingOptionNew context:NULL];
+	[ke.watchObject addObserver:ke forKeyPath:ke.event options:NSKeyValueObservingOptionNew context:NULL];
 }
 
 - (void)removeKvoEventKey:(NSString *)key
 {
 	RFKvoEvent *ke = self.kvoMap[key];
 	
-	[ke.watchObject removeObserver:self forKeyPath:ke.event];
+	[ke.watchObject removeObserver:ke forKeyPath:ke.event];
 	
 	[self.kvoMap removeObjectForKey:key];
 }
@@ -310,9 +314,10 @@
 	for (NSInteger i = self.eventInfos.count-1; i >= 0; i--)
 	{
 		RFNotifyEventInfo *nei = self.eventInfos[i];
-		if (nei.block != nil)
+		RFNotifyBlock block = nei.block;
+		if (block != nil)
 		{
-			nei.block(note, self.rfEvent.observerObject);
+			block(note, self.rfEvent.observerObject);
 		}
 	}
 }
@@ -342,9 +347,10 @@
 	for (NSInteger i = self.eventInfos.count-1; i >= 0; i--)
 	{
 		RFKvoEventInfo *kei = self.eventInfos[i];
-		if (kei.block != nil)
+		RFKvoBlock block = kei.block;
+		if (block != nil)
 		{
-			kei.block(keyPath, object, change, self.rfEvent.observerObject);
+			block(keyPath, object, change, self.rfEvent.observerObject);
 		}
 	}
 }

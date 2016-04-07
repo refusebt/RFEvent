@@ -16,9 +16,9 @@
 @class RFNotifyEventInfo;
 @class RFKvoEventInfo;
 
-#define RFEventLevelDefault						100.0f
+#define RFEventLevelDefault						1000.0f
 
-typedef void (^RFNotifyBlock) (NSNotification *aNote, id selfRef);
+typedef void (^RFNotifyBlock) (NSNotification *note, id selfRef);
 typedef void (^RFKvoBlock) (NSString *keyPath, id object, NSDictionary<NSString *,id> *change, id selfRef);
 
 #pragma mark - RFEvent
