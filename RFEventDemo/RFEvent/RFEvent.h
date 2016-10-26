@@ -24,8 +24,7 @@ typedef void (^RFKvoBlock) (NSString *keyPath, id object, NSDictionary<NSString 
 #pragma mark - RFEvent
 
 @interface RFEvent : NSObject
-@property (nonatomic, strong) NSMutableDictionary *notifyMap;	// key:通知名_watchObject value:RFNotifyEvent
-@property (nonatomic, strong) NSMutableDictionary *kvoMap;		// key:属性名_watchObject value:RFKvoEvent
+
 @property (nonatomic, weak) id observerObject;					// selfRef
 
 - (id)initWithObserverObject:(id)observerObject;
@@ -33,6 +32,8 @@ typedef void (^RFKvoBlock) (NSString *keyPath, id object, NSDictionary<NSString 
 //////////////////////////////////////////
 // Notify
 //////////////////////////////////////////
+
+@property (nonatomic, strong) NSMutableDictionary *notifyMap;	// key:通知名_watchObject value:RFNotifyEvent
 
 - (void)addNotifyEvent:(RFNotifyEvent *)ne forKey:(NSString *)key;
 - (void)removeNotifyEventKey:(NSString *)key;
@@ -51,6 +52,8 @@ typedef void (^RFKvoBlock) (NSString *keyPath, id object, NSDictionary<NSString 
 // KVO
 //////////////////////////////////////////
 
+@property (nonatomic, strong) NSMutableDictionary *kvoMap;		// key:属性名_watchObject value:RFKvoEvent
+
 - (void)addKvoEvent:(RFKvoEvent *)ke forKey:(NSString *)key;
 - (void)removeKvoEventKey:(NSString *)key;
 
@@ -63,13 +66,22 @@ typedef void (^RFKvoBlock) (NSString *keyPath, id object, NSDictionary<NSString 
 - (void)removeKvoEvent:(NSString *)keyPath watchObject:(id)watchObject
 			  ignoreLevel:(BOOL)bIgnoreLevel level:(double)level;
 
+//////////////////////////////////////////
+// RFEvent
+//////////////////////////////////////////
+
+@property (nonatomic, strong) NSHashTable *rfEventTbl;			// 存储观察者
+
+- (void)addRFEvent:(RFEvent *)rfEvent;
+- (void)removeRFEvent:(RFEvent *)rfEvent;
+
 @end
 
 #pragma mark - RFEventObject 承载监听
 
 @interface RFEventObject : NSObject
 @property (nonatomic, weak) RFEvent *rfEvent;
-@property (nonatomic, weak) id watchObject;				// 被观察对象
+@property (nonatomic, unsafe_unretained) id watchObject;				// 被观察对象
 @property (nonatomic, strong) NSString *event;
 @property (nonatomic, strong) NSMutableArray *eventInfos;
 

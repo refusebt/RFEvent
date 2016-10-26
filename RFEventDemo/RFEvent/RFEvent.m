@@ -23,6 +23,7 @@
 	{
 		_notifyMap = [NSMutableDictionary dictionary];
 		_kvoMap = [NSMutableDictionary dictionary];
+		_rfEventTbl = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];
 		_observerObject = observerObject;
 	}
 	return self;
@@ -30,6 +31,15 @@
 
 - (void)dealloc
 {
+	NSArray *rfEvents = [_rfEventTbl allObjects];
+	if (rfEvents != nil) {
+		for (RFEvent *rfEvent in rfEvents) {
+			[rfEvent removeNotifyEvent:nil watchObject:_observerObject ignoreLevel:YES level:0];
+			[rfEvent removeKvoEvent:nil watchObject:_observerObject ignoreLevel:YES level:0];
+			[self removeRFEvent:rfEvent];
+		}
+	}
+	
 	[self removeNotifyEvent:nil watchObject:nil ignoreLevel:YES level:0];
 	[self removeKvoEvent:nil watchObject:nil ignoreLevel:YES level:0];
 }
@@ -149,16 +159,15 @@
 - (void)addKvoEvent:(RFKvoEvent *)ke forKey:(NSString *)key
 {
 	self.kvoMap[key] = ke;
-	
 	[ke.watchObject addObserver:ke forKeyPath:ke.event options:NSKeyValueObservingOptionNew context:NULL];
+	[[ke.watchObject rfEvent] addRFEvent:self];
 }
 
 - (void)removeKvoEventKey:(NSString *)key
 {
 	RFKvoEvent *ke = self.kvoMap[key];
-	
 	[ke.watchObject removeObserver:ke forKeyPath:ke.event];
-	
+	ke.watchObject = nil;
 	[self.kvoMap removeObjectForKey:key];
 }
 
@@ -225,8 +234,7 @@
 		for (NSString *key in keys)
 		{
 			RFKvoEvent *ke = self.kvoMap[key];
-			if ([ke.event isEqualToString:keyPath]
-				&& ke.watchObject == watchObject)
+			if ([ke.event isEqualToString:keyPath] && ke.watchObject == watchObject)
 			{
 				if (bIgnoreLevel)
 				{
@@ -243,6 +251,20 @@
 				break;
 			}
 		}
+	}
+}
+
+- (void)addRFEvent:(RFEvent *)rfEvent
+{
+	if (rfEvent != nil) {
+		[self.rfEventTbl addObject:rfEvent];
+	}
+}
+
+- (void)removeRFEvent:(RFEvent *)rfEvent
+{
+	if (rfEvent != nil) {
+		[self.rfEventTbl removeObject:rfEvent];
 	}
 }
 
@@ -263,6 +285,11 @@
 		_eventInfos = [NSMutableArray array];
 	}
 	return self;
+}
+
+- (void)dealloc
+{
+	_watchObject = nil;
 }
 
 - (void)add:(RFEventObjectInfo *)info
