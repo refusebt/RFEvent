@@ -41,3 +41,4 @@
 - (void)rfPostEvent:(NSString *)event userInfo:(NSDictionary *)userInfo;
 
 @end
+

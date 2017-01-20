@@ -159,7 +159,7 @@
 - (void)addKvoEvent:(RFKvoEvent *)ke forKey:(NSString *)key
 {
 	self.kvoMap[key] = ke;
-	[ke.watchObject addObserver:ke forKeyPath:ke.event options:NSKeyValueObservingOptionNew context:NULL];
+	[ke.watchObject addObserver:ke forKeyPath:ke.event options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:NULL];
 	[[ke.watchObject rfEvent] addRFEvent:self];
 }
 
